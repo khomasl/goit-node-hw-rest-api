@@ -11,9 +11,9 @@ const writeContent = async () =>
     JSON.stringify(contacts, null, 2),
   )
 
-const listContacts = async () => contacts
+const listContacts = () => contacts
 
-const getContactById = async (contactId) =>
+const getContactById = (contactId) =>
   contacts.find((contact) => contact.id === contactId)
 
 const addContact = async ({ name, email, phone }) => {
@@ -34,7 +34,7 @@ const removeContact = async (contactId) => {
 const updateContact = async (contactId, body) => {
   const id = contacts.findIndex((contact) => contact.id === contactId)
   if (id === -1) return
-  const updatedContact = { id: contactId, ...contacts[id], ...body }
+  const updatedContact = { ...contacts[id], ...body }
   contacts[id] = updateContact
   await writeContent()
   return updatedContact
