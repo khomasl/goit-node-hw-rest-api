@@ -41,8 +41,8 @@ const logout = async (req, res, next) => {
     .json({ status: 'success', code: HttpCode.NO_CONTENT, data: {} })
 }
 
-const current = async (req, res, next) => {
-  const user = await req.user
+const current = (req, res, next) => {
+  const user = req.user
   if (!user) {
     return res.status(HttpCode.UNAUTHORIZED).json({
       status: 'error',
