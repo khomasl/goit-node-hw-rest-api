@@ -12,18 +12,19 @@ import {
   validateUpdateFavorite,
   validateId,
 } from './validation'
+import guard from '../../../middlewares/guard'
 
 const contactsRouter = new Router()
 
-contactsRouter.get('/', getContacts)
+contactsRouter.get('/', guard, getContacts)
 
-contactsRouter.get('/:id', getContactById)
+contactsRouter.get('/:id', [guard, validateId], getContactById)
 
-contactsRouter.post('/', validateCreate, addContact)
+contactsRouter.post('/', [guard, validateCreate], addContact)
 
-contactsRouter.delete('/:id', validateId, deleteContact)
+contactsRouter.delete('/:id', [guard, validateId], deleteContact)
 
-contactsRouter.put('/:id', validateId, validateUpdate, updateContact)
+contactsRouter.put('/:id', [guard, validateId, validateUpdate], updateContact)
 
 contactsRouter.patch(
   '/:id/favorite',

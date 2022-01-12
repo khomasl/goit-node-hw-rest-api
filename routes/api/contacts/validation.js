@@ -1,5 +1,6 @@
 import Joi from 'joi'
 import mongoose from 'mongoose'
+import { HttpCode } from '../../../lib/constants'
 
 const { Types } = mongoose
 
@@ -25,7 +26,9 @@ export const validateCreate = async (req, res, next) => {
   try {
     await createSchema.validateAsync(req.body)
   } catch (error) {
-    return res.status(400).json({ message: 'missing required name field' })
+    return res
+      .status(HttpCode.BAD_REQUEST)
+      .json({ message: 'missing required name field' })
   }
   next()
 }
@@ -34,7 +37,9 @@ export const validateUpdate = async (req, res, next) => {
   try {
     await updateSchema.validateAsync(req.body)
   } catch (error) {
-    return res.status(400).json({ message: 'missing field favorite' })
+    return res
+      .status(HttpCode.BAD_REQUEST)
+      .json({ message: 'missing field favorite' })
   }
   next()
 }
@@ -43,14 +48,16 @@ export const validateUpdateFavorite = async (req, res, next) => {
   try {
     await updateFavoriteSchema.validateAsync(req.body)
   } catch (error) {
-    return res.status(400).json({ message: 'missing fields' })
+    return res.status(HttpCode.BAD_REQUEST).json({ message: 'missing fields' })
   }
   next()
 }
 
 export const validateId = async (req, res, next) => {
   if (!Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: 'Invalid ObjectId' })
+    return res
+      .status(HttpCode.BAD_REQUEST)
+      .json({ message: 'Invalid ObjectId' })
   }
   next()
 }

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-const { Schema, model } = mongoose
+const { Schema, SchemaTypes, model } = mongoose
 
 const contactSchema = new Schema(
   {
@@ -16,6 +16,10 @@ const contactSchema = new Schema(
     favorite: {
       type: Boolean,
       default: false,
+    },
+    owner: {
+      type: SchemaTypes.ObjectId,
+      ref: 'user',
     },
   },
   {
