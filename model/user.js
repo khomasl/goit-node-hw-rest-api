@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
-import { randomUUID } from 'crypto'
+import { v4 as uuidv4 } from 'uuid'
 import gravatar from 'gravatar'
 import { Role } from '../lib/users'
 
@@ -55,7 +55,7 @@ const userSchema = new Schema(
     verify: { type: Boolean, default: false },
     verificationToken: {
       type: String,
-      default: randomUUID(),
+      default: uuidv4(),
       required: [true, 'Verify token is required'],
     },
   },
