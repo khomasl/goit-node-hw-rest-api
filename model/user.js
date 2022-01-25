@@ -55,7 +55,7 @@ const userSchema = new Schema(
     verify: { type: Boolean, default: false },
     verificationToken: {
       type: String,
-      default: uuidv4(),
+      default: uuidv4,
       required: [true, 'Verify token is required'],
     },
   },
