@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
+import { v4 as uuidv4 } from 'uuid'
 import gravatar from 'gravatar'
 import { Role } from '../lib/users'
 
@@ -50,6 +51,12 @@ const userSchema = new Schema(
     idAvatarCloud: {
       type: String,
       default: null,
+    },
+    verify: { type: Boolean, default: false },
+    verificationToken: {
+      type: String,
+      default: uuidv4,
+      required: [true, 'Verify token is required'],
     },
   },
   {
