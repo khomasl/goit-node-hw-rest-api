@@ -1,4 +1,5 @@
 import { HttpCode } from '../../lib/constants'
+import { CustomError } from '../../lib/custom-error'
 import repositoryUsers from '../../repository/users'
 import userService from '../../service/users'
 import { EmailService, SenderSendGrid } from '../../service/email'
@@ -10,49 +11,37 @@ import {
 } from '../../service/file-storage'
 
 const signup = async (req, res, next) => {
-  try {
-    const { email } = req.body
-    const isUserExist = await userService.isUserExist(email)
-    if (isUserExist) {
-      return res.status(HttpCode.CONFLICT).json({
-        status: 'error',
-        code: HttpCode.CONFLICT,
-        message: 'Email is already exist',
-      })
-    }
-    const userData = await userService.create(req.body)
-
-    const emailService = new EmailService(
-      process.env.NODE_ENV,
-      new SenderSendGrid(),
-    )
-    const isSend = await emailService.sendVerifyEmail(
-      email,
-      userData.name,
-      userData.verificationToken,
-    )
-
-    delete userData.verificationToken
-
-    res.status(HttpCode.CREATED).json({
-      status: 'success',
-      code: HttpCode.CREATED,
-      data: { ...userData, isSendEmailVerify: isSend },
-    })
-  } catch (error) {
-    next(error)
+  const { email } = req.body
+  const isUserExist = await userService.isUserExist(email)
+  if (isUserExist) {
+    throw new CustomError(HttpCode.CONFLICT, 'Email is already exist')
   }
+  const userData = await userService.create(req.body)
+
+  const emailService = new EmailService(
+    process.env.NODE_ENV,
+    new SenderSendGrid(),
+  )
+  const isSend = await emailService.sendVerifyEmail(
+    email,
+    userData.name,
+    userData.verificationToken,
+  )
+
+  delete userData.verificationToken
+
+  res.status(HttpCode.CREATED).json({
+    status: 'success',
+    code: HttpCode.CREATED,
+    data: { ...userData, isSendEmailVerify: isSend },
+  })
 }
 
 const login = async (req, res, next) => {
   const { email, password } = req.body
   const user = await userService.getUser(email, password)
   if (!user) {
-    return res.status(HttpCode.UNAUTHORIZED).json({
-      status: 'error',
-      code: HttpCode.UNAUTHORIZED,
-      message: 'Invalid credentials',
-    })
+    throw new CustomError(HttpCode.UNAUTHORIZED, 'Invalid credentials')
   }
   const token = userService.getToken(user)
   await userService.setToken(user.id, token)
@@ -71,11 +60,7 @@ const logout = async (req, res, next) => {
 const current = (req, res, next) => {
   const user = req.user
   if (!user) {
-    return res.status(HttpCode.UNAUTHORIZED).json({
-      status: 'error',
-      code: HttpCode.UNAUTHORIZED,
-      message: 'Not authorized',
-    })
+    throw new CustomError(HttpCode.UNAUTHORIZED, 'Not authorized')
   }
   res.status(HttpCode.OK).json({
     status: 'success',
@@ -112,22 +97,13 @@ const verifyUser = async (req, res, next) => {
       ResponseBody: { message: 'Verification successful' },
     })
   }
-
-  res.status(HttpCode.BAD_REQUEST).json({
-    status: 'Not found',
-    code: HttpCode.BAD_REQUEST,
-    ResponseBody: { message: 'User not found' },
-  })
+  throw new CustomError(HttpCode.BAD_REQUEST, 'User not found')
 }
 
 const repeatVerifyUser = async (req, res, next) => {
   const { email } = req.body
   if (!email) {
-    return res.status(HttpCode.BAD_REQUEST).json({
-      status: 'Bad request',
-      code: HttpCode.BAD_REQUEST,
-      ResponseBody: { message: 'Missing required field email' },
-    })
+    throw new CustomError(HttpCode.BAD_REQUEST, 'Missing required field email')
   }
 
   const user = await repositoryUsers.findByEmail(email)
@@ -151,19 +127,12 @@ const repeatVerifyUser = async (req, res, next) => {
         ResponseBody: { message: 'Verification email sent' },
       })
     }
-
-    return res.status(HttpCode.UE).json({
-      status: 'error',
-      code: HttpCode.UE,
-      ResponseBody: { message: 'Unprocesable Entity' },
-    })
+    throw new CustomError(HttpCode.SU, 'Service Unavailable')
   }
-
-  res.status(HttpCode.BAD_REQUEST).json({
-    status: 'Bad request',
-    code: HttpCode.BAD_REQUEST,
-    ResponseBody: { message: 'Verification is already been passed' },
-  })
+  throw new CustomError(
+    HttpCode.BAD_REQUEST,
+    'Verification is already been passed',
+  )
 }
 
 export {
