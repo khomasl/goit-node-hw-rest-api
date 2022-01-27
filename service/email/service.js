@@ -11,7 +11,7 @@ export default class EmailService {
         this.link = 'http://localhost:5000'
         break
       case 'production':
-        this.link = 'http://heroku/'
+        this.link = 'https://api-contacts-users.herokuapp.com'
         break
       default:
         this.link = 'http://localhost:3000'

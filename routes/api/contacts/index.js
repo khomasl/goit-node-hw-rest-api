@@ -12,25 +12,32 @@ import {
   validateUpdateFavorite,
   validateId,
 } from './validation'
+
+import wrapperError from '../../../middlewares/error-handler'
+
 import guard from '../../../middlewares/guard'
 
 const contactsRouter = new Router()
 
 contactsRouter.get('/', guard, getContacts)
 
-contactsRouter.get('/:id', [guard, validateId], getContactById)
+contactsRouter.get('/:id', [guard, validateId], wrapperError(getContactById))
 
-contactsRouter.post('/', [guard, validateCreate], addContact)
+contactsRouter.post('/', [guard, validateCreate], wrapperError(addContact))
 
-contactsRouter.delete('/:id', [guard, validateId], deleteContact)
+contactsRouter.delete('/:id', [guard, validateId], wrapperError(deleteContact))
 
-contactsRouter.put('/:id', [guard, validateId, validateUpdate], updateContact)
+contactsRouter.put(
+  '/:id',
+  [guard, validateId, validateUpdate],
+  wrapperError(updateContact),
+)
 
 contactsRouter.patch(
   '/:id/favorite',
   validateId,
   validateUpdateFavorite,
-  updateContact,
+  wrapperError(updateContact),
 )
 
 export default contactsRouter
